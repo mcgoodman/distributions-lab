@@ -1,4 +1,7 @@
 
+require(tidyverse)
+require(reshape2)
+
 # Functions encoding statistical distributions --------------------------------
 
 ## Normal Distribution Functions

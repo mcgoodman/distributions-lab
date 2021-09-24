@@ -10,7 +10,7 @@ theme_set(theme_minimal() + theme(text = element_text(size = 16)))
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Lab: Exploring Distributions"),
+    titlePanel("Lab: Distributions and their means"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
@@ -33,7 +33,52 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             tabsetPanel(
-             tabPanel("Density Function", plotOutput("density"))
+             tabPanel("Density Function", fluidPage(
+                 plotOutput("density"),
+                 uiOutput("description")
+             )),
+             tabPanel("Samples", fluidPage(
+                 plotOutput("samples"),
+                 fluidPage(
+                     h2("Sample distributions"),
+                     p(paste(
+                         "Here, we're only visualizing the first 10 samples. Pay attention to the",
+                         "shape of the distributions as you increase the sample size, and to the variation",
+                         "in sample means (shown as a black line) among samples. What do you notice?"
+                     ))
+                 )
+             )),
+             tabPanel("Sampling distribution", fluidPage(
+                 plotOutput("sampling_dist"),
+                 fluidPage(
+                     h2("The Sampling Distribution"),
+                     p(paste(
+                         "The sampling distribution is the distribution of sample means. In practice",
+                         "we usually only have 1 sample - we might have many observations in that sample",
+                         "but we only have 1 sample - so we can't know the sampling distribution. However,",
+                         "we can use the properties of our sample, and central limit theorem, to infer",
+                         "the variance and shape of the sampling distribution."
+                     )),
+                     p(paste(
+                         "Why do we want to infer the sampling distribution if we already have the mean from",
+                         "out sample? Well, the sample mean is just that - a mean from a sample, and we",
+                         "usually want to make inferences about the true mean value of the population from",
+                         "which we're sampling. How much uncertainty is there in our estimate of the mean?",
+                         "Which range of other mean values could also be considered consistent with the",
+                         "data we collected?"
+                     )),
+                    p(paste(
+                        "Mess around with the parameters to the left and see what happens to the sampling",
+                        "distribution. As you increase the sample size, what happens to variance in the",
+                        "sampling distribution (note the change in x axis scale)? What does this mean",
+                        "about our certainty / uncertainty in our estimate of the mean from a sample",
+                        "of that size? Play with some distributions that produce weird or skewed shapes -",
+                        "what do you notice? In all this, it might help to keep the number of samples",
+                        "very high, since you'll be able to see that sampling distribution most clearly that",
+                        "way"
+                    ))
+                 )
+             ))
             )
         )
     )
@@ -74,26 +119,15 @@ server <- function(input, output) {
         }
     })
 
-#    output$xlim <- renderUI({
-#        if(input$dist == "Beta" | input$dist == "Binomial" | input$dist == "Poisson") {
-#            fluidPage()
-#        } else {
-#            fluidPage(
-#                numericInput("xmin", "x minimum", dist()$xlim[1], min = dist()$xlim[3], max = dist()$xlim[4]),
-#                numericInput("xmax", "x maximum", dist()$xlim[2], min = dist()$xlim[3], max = dist()$xlim[4])
-#            )
-#        }
-#    })
-
     output$xlim <- renderUI({
         if(input$dist == "Normal") {
             fluidPage(
-                numericInput("xmin", "x minimum", dist()$xlim[1], min = dist()$xlim[3], max = dist()$xlim[4]),
-                numericInput("xmax", "x maximum", dist()$xlim[2], min = dist()$xlim[3], max = dist()$xlim[4])
+                numericInput("xmin", "x axis minimum", dist()$xlim[1], min = dist()$xlim[3], max = dist()$xlim[4]),
+                numericInput("xmax", "x axis maximum", dist()$xlim[2], min = dist()$xlim[3], max = dist()$xlim[4])
             )
         } else if (input$dist == "Pareto") {
             fluidPage(
-                numericInput("xmax", "x maximum", dist()$xmax, min = 1)
+                numericInput("xmax", "x axis maximum", dist()$xmax, min = 1)
             )
         } else {
             fluidPage()
@@ -107,6 +141,190 @@ server <- function(input, output) {
             dist()$plot(input$par1, input$par2, xmax = input$xmax)
         } else {
             dist()$plot(input$par1, input$par2, xlim = c(input$xmin, input$xmax))
+        }
+    })
+
+    sample_df <- reactive({
+        if (length(dist()$pars) == 2) {
+            pars <- list(input$par1, input$par2); names(pars) <- names(dist()$pars)
+        } else {
+            pars <- list(input$par1); names(pars) <- names(dist()$pars)
+        }
+        x <- draw_samples(input$sample_size, input$n_samples, dist(), pars)
+        x <- reshape2::melt(x)
+        names(x) <- c("obs", "sample", "value")
+        x
+    })
+
+    sample_means <- reactive({
+        sample_df() %>% group_by(sample) %>% summarize(mean = mean(value))
+    })
+
+    output$samples <- renderPlot({
+        if(input$dist == "Normal") {
+            sample_df() %>%
+                filter(sample <= 10) %>%
+                ggplot(aes(value)) +
+                geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
+                           color = "black", size = 1.5) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+                facet_wrap(~sample, nrow = 2) +
+                theme_bw() +
+                scale_x_continuous(limits = c(input$xmin, input$xmax))
+        } else if (input$dist == "Binomial") {
+            sample_df() %>%
+                filter(sample <= 10) %>%
+                ggplot(aes(value)) +
+                geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
+                           color = "black", size = 1.5) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
+                facet_wrap(~sample, nrow = 2) +
+                theme_bw() +
+                scale_x_continuous(limits = c(-1, input$par1 + 1))
+        } else if (input$dist == "Poisson") {
+            sample_df() %>%
+                filter(sample <= 10) %>%
+                ggplot(aes(value)) +
+                geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
+                           color = "black", size = 1.5) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
+                facet_wrap(~sample, nrow = 2) +
+                theme_bw() +
+                scale_x_continuous(limits = c(-1, ifelse(input$par1 <= 1, 4, ceiling(input$par1*3) + 1)))
+        } else if (input$dist == "Beta") {
+            sample_df() %>%
+                filter(sample <= 10) %>%
+                ggplot(aes(value)) +
+                geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
+                           color = "black", size = 1.5) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", binwidth = 0.05, size = 1) +
+                facet_wrap(~sample, nrow = 2) +
+                theme_bw() +
+                scale_x_continuous(limits = c(-0.05, 1.05))
+        } else if (input$dist == "Pareto") {
+            sample_df() %>%
+                filter(sample <= 10) %>%
+                ggplot(aes(value)) +
+                geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
+                           color = "black", size = 1.5) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
+                facet_wrap(~sample, nrow = 2) +
+                theme_bw() +
+                scale_x_continuous(limits = c(0, input$xmax + 1))
+        }
+    })
+
+    output$sampling_dist <- renderPlot({
+        if(input$dist == "Normal") {
+            sample_means() %>%
+                ggplot(aes(mean)) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+                #scale_x_continuous(limits = c(input$xmin, input$xmax)) +
+                xlab("sample mean")
+        } else if (input$dist == "Binomial") {
+            sample_means() %>%
+                ggplot(aes(mean)) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+                #scale_x_continuous(limits = c(-1, input$par1 + 1)) +
+                xlab("sample mean")
+        } else if (input$dist == "Poisson") {
+            sample_means() %>%
+                ggplot(aes(mean)) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+                #scale_x_continuous(limits = c(-1, ifelse(input$par1 <= 1, 4, ceiling(input$par1*3) + 1))) +
+                xlab("sample mean")
+        } else if (input$dist == "Beta") {
+            sample_means() %>%
+                ggplot(aes(mean)) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+                #scale_x_continuous(limits = c(-0.05, 1.05)) +
+                xlab("sample mean")
+        } else if (input$dist == "Pareto") {
+            sample_means() %>%
+                ggplot(aes(mean)) +
+                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+                #scale_x_continuous(limits = c(0, input$xmax + 1)) +
+                xlab("sample mean")
+        }
+    })
+
+    output$description <- renderUI({
+        if(input$dist == "Normal") {
+            fluidPage(
+                h2("The Normal Distribution"),
+                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
+                p(paste(
+                    "Because the mean / location of the normal distribution and the variance / scale",
+                    "are independent, we can use it to build simple models linking the mean value of a response",
+                    "variable to the values of some predictors, so normal distributions are often used",
+                    "in statistical models for their simplicity and flexibility."
+                )),
+                p(paste(
+                    "However, as we'll find out in this lab, that's not the only reason the normal distribution",
+                    "is so prevalent in statistics: Central limit theorem states that the mean of any random variable",
+                    "with a finite variance will converge to a normal distribution as the sample size increases"
+                )),
+                p(paste(
+                    "In this lab, we'll explore a few statistical distributions, some of which are commonly used",
+                    "in ecological models. We'll sample from those distributions, visualize the samples",
+                    "and then visualize the distribution of the sample means."
+                )),
+                p(paste(
+                    "The distinction between the 'Sample size' and 'Number of samples' sliders is important.",
+                    "Imagine we have a bag of marbles, some of which are blue and some are red, and what we're",
+                    "doing is taking marbles from the bag, noting down the proportion that are blue, and then",
+                    "mixing all the marbles up into the bag and repeating. The sample size is the number of",
+                    "marbles we take from the bag each time before calculating the proportion that are blue",
+                    "and the number of samples is the number of times we draw a set of marbles from the bag."
+                ))
+            )
+        } else if (input$dist == "Binomial") {
+            fluidPage(
+                h2("The Binomial Distribution"),
+                p(paste(
+                    "The binomial distribution represents the sum of n independent Bernoulli (binary outcome) trials,",
+                    "where the probability of 'success' on each trial is p - for example, if we survey 10",
+                    "transects in a kelp forest, the number of transects we find seastars on would have a",
+                    "binomial distribution with n = 10 and p equal to the probability that we observe a",
+                    "seastar on any given transect."
+                )),
+                p(paste(
+                    "A special case of the binomial distribution, when n = 1, is the Bernoulli distribution."
+                ))
+            )
+        } else if (input$dist == "Poisson") {
+            fluidPage(
+                h2("The Poisson Distribution"),
+                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
+                p(paste(
+                    "Because the mean / location of the normal distribution and the variance / scale",
+                    "are independent, we can use it to build simple models linking the mean value of a response",
+                    "variable to the values of some predictors, so normal distributions are often used",
+                    "in statistical models for their simplicity and flexibility."
+                ))
+            )
+        } else if (input$dist == "Beta") {
+            fluidPage(
+                h2("The Beta Distribution"),
+                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
+                p(paste(
+                    "Because the mean / location of the normal distribution and the variance / scale",
+                    "are independent, we can use it to build simple models linking the mean value of a response",
+                    "variable to the values of some predictors, so normal distributions are often used",
+                    "in statistical models for their simplicity and flexibility."
+                ))
+            )
+        } else if (input$dist == "Pareto") {
+            fluidPage(
+                h2("The Pareto Distribution"),
+                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
+                p(paste(
+                    "Because the mean / location of the normal distribution and the variance / scale",
+                    "are independent, we can use it to build simple models linking the mean value of a response",
+                    "variable to the values of some predictors, so normal distributions are often used",
+                    "in statistical models for their simplicity and flexibility."
+                ))
+            )
         }
     })
 

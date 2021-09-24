@@ -25,7 +25,7 @@ ui <- fluidPage(
             uiOutput("xlim"),
             fluidPage(
                 sliderInput("sample_size", "Sample size", 1, 500, 10, 1),
-                sliderInput("n_samples", "Number of samples", 10, 1000, 50, 10)
+                sliderInput("n_samples", "Number of samples", 10, 1000, 500, 10)
             )
         ),
 
@@ -174,20 +174,24 @@ server <- function(input, output) {
         } else if (input$dist == "Binomial") {
             sample_df() %>%
                 filter(sample <= 10) %>%
-                ggplot(aes(value)) +
+                group_by(sample, value) %>%
+                tally() %>%
+                ggplot(aes(value, n)) +
                 geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
                            color = "black", size = 1.5) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
+                geom_bar(stat = "identity", fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
                 facet_wrap(~sample, nrow = 2) +
                 theme_bw() +
                 scale_x_continuous(limits = c(-1, input$par1 + 1))
         } else if (input$dist == "Poisson") {
             sample_df() %>%
                 filter(sample <= 10) %>%
-                ggplot(aes(value)) +
+                group_by(sample, value) %>%
+                tally() %>%
+                ggplot(aes(value, n)) +
                 geom_vline(aes(xintercept = mean), data = sample_means() %>% filter(sample <= 10),
                            color = "black", size = 1.5) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
+                geom_bar(stat = "identity", fill = "dodgerblue3", color = "dodgerblue4", binwidth = 1, size = 1) +
                 facet_wrap(~sample, nrow = 2) +
                 theme_bw() +
                 scale_x_continuous(limits = c(-1, ifelse(input$par1 <= 1, 4, ceiling(input$par1*3) + 1)))
@@ -282,7 +286,8 @@ server <- function(input, output) {
             fluidPage(
                 h2("The Binomial Distribution"),
                 p(paste(
-                    "The binomial distribution represents the sum of n independent Bernoulli (binary outcome) trials,",
+                    "The binomial distribution is a discrete probability distribution that represents",
+                    "the sum of n independent Bernoulli (binary outcome) trials,",
                     "where the probability of 'success' on each trial is p - for example, if we survey 10",
                     "transects in a kelp forest, the number of transects we find seastars on would have a",
                     "binomial distribution with n = 10 and p equal to the probability that we observe a",
@@ -295,34 +300,44 @@ server <- function(input, output) {
         } else if (input$dist == "Poisson") {
             fluidPage(
                 h2("The Poisson Distribution"),
-                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
+                p("The Poisson distribution is a discrete probability distribution which is commonly used for count data."),
                 p(paste(
-                    "Because the mean / location of the normal distribution and the variance / scale",
-                    "are independent, we can use it to build simple models linking the mean value of a response",
-                    "variable to the values of some predictors, so normal distributions are often used",
-                    "in statistical models for their simplicity and flexibility."
+                    "The Poisson distribution expresses the number of events that happen in a fixed amount of time",
+                    "if they happen at a fixed mean rate. For example,let's say I;m sitting at my desk by the window",
+                    "for 8 hours a day. If dogs pass every 30 minutes, the number of dogs I observe in a given day would",
+                    "be Poisson distributed with mean 16, because dogs pass once every half hour for eight hours."
+                )),
+                p(paste(
+                    "We can also consider space, instead of time, as the dimension over which some species of interest is",
+                    "distributed with some mean rate. So, for example, we might use the Poisson distribution to model",
+                    "the number of seastars that we find along transects in a kelp forest."
                 ))
             )
         } else if (input$dist == "Beta") {
             fluidPage(
                 h2("The Beta Distribution"),
-                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
+                p("The beta distribution is a continous probability distribution bounded between 0 and 1."),
                 p(paste(
-                    "Because the mean / location of the normal distribution and the variance / scale",
-                    "are independent, we can use it to build simple models linking the mean value of a response",
-                    "variable to the values of some predictors, so normal distributions are often used",
-                    "in statistical models for their simplicity and flexibility."
+                    "The beta distribution is frequently used for proportion data - for example, the proportion of",
+                    "a species diet composed of a single prey item, or the proportion of a surface covered in some",
+                    "species of algae or another. The shape of the beta distribution is extremely flexible - ",
+                    "play around with the shape parameters. Does the shape of the beta distribution that we're",
+                    "sampling from impact the shape of the distribution of sample means?"
+                )),
+                p(paste(
+                    "As a side note, the beta distribution is closely related to the Dirichlet distribution",
+                    "which can be used for modeling the proportions of multiple categories simultaneously",
+                    "- e.g. multiple prey items in predator diets."
                 ))
             )
         } else if (input$dist == "Pareto") {
             fluidPage(
                 h2("The Pareto Distribution"),
-                p("The Normal Distribution is a continuous probability distribution which spans all real numbers."),
                 p(paste(
-                    "Because the mean / location of the normal distribution and the variance / scale",
-                    "are independent, we can use it to build simple models linking the mean value of a response",
-                    "variable to the values of some predictors, so normal distributions are often used",
-                    "in statistical models for their simplicity and flexibility."
+                    "The Pareto distribution is a continuous probability distribution for values greater than 1.",
+                    "It's really not used in ecology ever, but it's interesting for this lab because for a range",
+                    "of parameters, the variance of the Pareto distribution is infinite. Notice what this does",
+                    "to the sampling distribution."
                 ))
             )
         }

@@ -15,9 +15,9 @@ normal$mean <- function(mu, sigma) mu
 normal$variance <- function(mu, sigma) sigma^2
 normal$plot <- function(mu, sigma, xlim = NA) {
   if(any(is.na(xlim))) {
-    x = seq(mu - 4*sigma, mu + 4*sigma, length.out = 100)
+    x = seq(mu - 4*sigma, mu + 4*sigma, length.out = 200)
   } else {
-    x = seq(min(xlim), max(xlim), length.out = 100)
+    x = seq(min(xlim), max(xlim), length.out = 200)
   }
   density = normal$density(x, mu, sigma)
 
@@ -57,7 +57,7 @@ pareto$plot <- function(a, xm, xmax) {
   if (xmax <= 1) {
     stop("density of pareto distribution is undefined for x < 1")
   } else {
-    x = seq(1, xmax, length.out = 100)
+    x = seq(1, xmax, length.out = 200)
   }
 
   density = pareto$density(x, a, xm)
@@ -77,7 +77,7 @@ beta$draw_samples <- function(n, a, b) rbeta(n, a, b)
 beta$mean <- function(a, b) a / (a + b)
 beta$variance <- function(a, b) (a * b) / ((a + b)^2 * (a + b + 1))
 beta$plot <- function(a, b, xlim) {
-  x = seq(0, 1, by = 0.01)
+  x = seq(0, 1, by = 0.001)
   if (a < 0 | b < 0) stop("a, b must be positive")
   density = beta$density(x, a, b)
 

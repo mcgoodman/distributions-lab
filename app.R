@@ -12,12 +12,22 @@ ui <- fluidPage(
     # Application title
     titlePanel("Lab: Distributions and their means"),
 
+    # Left align formulas
+    tags$head(
+        tags$style(HTML("
+                    div.MathJax_Display{
+                    text-align: left !important;
+                    }"
+        )
+        )
+    ),
+
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
             selectInput(
                 inputId = "dist",
-                label = "Statistical Distribution",
+                label = "Probability Distribution",
                 choices = c(
                     "Normal", "Poisson", "Binomial", "Gamma", "Beta", "Pareto"
                 )),
@@ -254,7 +264,11 @@ server <- function(input, output) {
                     "mixing all the marbles up into the bag and repeating. The sample size is the number of",
                     "marbles we take from the bag each time before calculating the proportion that are blue",
                     "and the number of samples is the number of times we draw a set of marbles from the bag."
-                ))
+                )),
+                h4("Mean"),
+                withMathJax("\\[\\mu\\]"),
+                h4("Variance"),
+                withMathJax("\\[\\sigma^2\\]")
             )
         } else if (input$dist == "Binomial") {
             fluidPage(
@@ -269,7 +283,11 @@ server <- function(input, output) {
                 )),
                 p(paste(
                     "A special case of the binomial distribution, when n = 1, is the Bernoulli distribution."
-                ))
+                )),
+                h4("Mean"),
+                withMathJax("\\[n p\\]"),
+                h4("Variance"),
+                withMathJax("\\[n p (1 - p)\\]")
             )
         } else if (input$dist == "Poisson") {
             fluidPage(
@@ -292,7 +310,11 @@ server <- function(input, output) {
                     "A distribution closely related to the Poisson is the negative binomial - this is also a discrete",
                     "distribution commonly used for count data, but it includes an overdispersion parameter which",
                     "loosens the restrictive assumption that the mean and variance are equal."
-                ))
+                )),
+                h4("Mean"),
+                withMathJax("\\[\\lambda\\]"),
+                h4("Variance"),
+                withMathJax("\\[\\lambda\\]")
             )
         } else if (input$dist == "Beta") {
             fluidPage(
@@ -309,7 +331,11 @@ server <- function(input, output) {
                     "As a side note, the beta distribution is closely related to the Dirichlet distribution",
                     "which can be used for modeling the proportions of multiple categories simultaneously",
                     "- e.g. multiple prey items in predator diets."
-                ))
+                )),
+                h4("Mean"),
+                withMathJax("\\[\\frac{\\alpha}{\\alpha + \\beta}\\]"),
+                h4("Variance"),
+                withMathJax("\\[\\frac{\\alpha \\beta}{(\\alpha + \\beta)^2 (\\alpha + \\beta + 1)}\\]")
             )
         } else if (input$dist == "Pareto") {
             fluidPage(
@@ -319,7 +345,11 @@ server <- function(input, output) {
                     "It's really not used in ecology ever, but it's interesting because for a range of parameters,",
                     "the variance of the Pareto distribution is infinite. Notice what this does to the sampling",
                     "distribution."
-                ))
+                )),
+                h4("Mean"),
+                withMathJax("\\[\\mu = \\begin{cases} \\infty & \\alpha \\leq 1 \\\\ \\frac{\\alpha x}{\\alpha - 1} & \\alpha > 1 \\end{cases}\\]"),
+                h4("Variance"),
+                withMathJax("\\[\\sigma^2 = \\begin{cases} \\infty & \\alpha \\leq 2 \\\\ \\frac{x^2 \\alpha}{(\\alpha - 1)^2 (\\alpha - 2)} & \\alpha > 2 \\end{cases}\\]")
             )
         } else if (input$dist == "Gamma") {
             fluidPage(
@@ -336,7 +366,11 @@ server <- function(input, output) {
                     "the mean or variance. This can make it a little confusing to use in models, because we are used to",
                     "describing variables in terms of their means. Fortunately, the Gamma distribution can instead be",
                     "parameterized using a mean (/location) and variance (see Bolker 2007 Chapter 4)."
-                ))
+                )),
+                h4("Mean"),
+                withMathJax("\\[\\frac{\\alpha}{\\beta}\\]"),
+                h4("Variance"),
+                withMathJax("\\[\\frac{\\alpha}{\\beta^2}\\]")
             )
         }
     })

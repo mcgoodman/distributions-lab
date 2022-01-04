@@ -127,6 +127,25 @@ poisson$plot <- function(lambda) {
     geom_bar(stat = "identity", fill = "dodgerblue3", color = "dodgerblue4")
 }
 
+## Gamma distribution functions
+gamma <- list()
+gamma$pars <- list(k = "k: shape", theta = div(HTML("&theta;: scale")))
+gamma$scale <- list(k = c(0.1, 10, 1, 0.1), theta = c(0.1, 3, 1, 0.1))
+gamma$xmax <- 20
+gamma$density <- function(x, k, theta) dgamma(x, shape = k, scale = theta)
+gamma$draw_samples <- function(n, k, theta) rgamma(n, shape = k, scale = theta)
+gamma$mean <- function(k, theta) k * theta
+gamma$variance <- function(k, theta) k * theta^2
+gamma$plot <- function(k, theta, xmax = 20) {
+  x = seq(0, xmax, length.out = 200)
+  density = gamma$density(x, k, theta)
+
+  data.frame(x = x, density = density) %>%
+    ggplot(aes(x, density)) +
+    geom_area(alpha = 0.5, fill = "dodgerblue3", color = NA) +
+    geom_line(size = 1, color = "dodgerblue4")
+}
+
 
 ### Functions to draw and summarize samples ---------------------------------------------
 

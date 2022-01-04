@@ -19,7 +19,7 @@ ui <- fluidPage(
                 inputId = "dist",
                 label = "Statistical Distribution",
                 choices = c(
-                    "Normal", "Poisson", "Binomial", "Beta", "Pareto"
+                    "Normal", "Poisson", "Binomial", "Gamma", "Beta", "Pareto"
                 )),
             uiOutput("params"),
             uiOutput("xlim"),
@@ -61,7 +61,7 @@ ui <- fluidPage(
                      )),
                      p(paste(
                          "Why do we want to infer the sampling distribution if we already have the mean from",
-                         "out sample? Well, the sample mean is just that - a mean from a sample, and we",
+                         "our sample? Well, the sample mean is just that - a mean from a sample, and we",
                          "usually want to make inferences about the true mean value of the population from",
                          "which we're sampling. How much uncertainty is there in our estimate of the mean?",
                          "Which range of other mean values could also be considered consistent with the",
@@ -96,7 +96,8 @@ server <- function(input, output) {
             "Poisson" = poisson,
             "Binomial" = binomial,
             "Beta" = beta,
-            "Pareto" = pareto
+            "Pareto" = pareto,
+            "Gamma" = gamma
         )
     })
 
@@ -125,7 +126,7 @@ server <- function(input, output) {
                 numericInput("xmin", "x axis minimum", dist()$xlim[1], min = dist()$xlim[3], max = dist()$xlim[4]),
                 numericInput("xmax", "x axis maximum", dist()$xlim[2], min = dist()$xlim[3], max = dist()$xlim[4])
             )
-        } else if (input$dist == "Pareto") {
+        } else if (input$dist == "Pareto" | input$dist == "Gamma") {
             fluidPage(
                 numericInput("xmax", "x axis maximum", dist()$xmax, min = 1)
             )
@@ -137,7 +138,7 @@ server <- function(input, output) {
     output$density <- renderPlot({
         if (length(dist()$pars) == 1){
             dist()$plot(input$par1)
-        } else if (input$dist == "Pareto") {
+        } else if (input$dist == "Pareto" | input$dist == "Gamma") {
             dist()$plot(input$par1, input$par2, xmax = input$xmax)
         } else {
             dist()$plot(input$par1, input$par2, xlim = c(input$xmin, input$xmax))
@@ -205,7 +206,7 @@ server <- function(input, output) {
                 facet_wrap(~sample, nrow = 2) +
                 theme_bw() +
                 scale_x_continuous(limits = c(-0.05, 1.05))
-        } else if (input$dist == "Pareto") {
+        } else if (input$dist == "Pareto" | input$dist == "Gamma") {
             sample_df() %>%
                 filter(sample <= 10) %>%
                 ggplot(aes(value)) +
@@ -219,37 +220,10 @@ server <- function(input, output) {
     })
 
     output$sampling_dist <- renderPlot({
-        if(input$dist == "Normal") {
-            sample_means() %>%
-                ggplot(aes(mean)) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
-                #scale_x_continuous(limits = c(input$xmin, input$xmax)) +
-                xlab("sample mean")
-        } else if (input$dist == "Binomial") {
-            sample_means() %>%
-                ggplot(aes(mean)) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
-                #scale_x_continuous(limits = c(-1, input$par1 + 1)) +
-                xlab("sample mean")
-        } else if (input$dist == "Poisson") {
-            sample_means() %>%
-                ggplot(aes(mean)) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
-                #scale_x_continuous(limits = c(-1, ifelse(input$par1 <= 1, 4, ceiling(input$par1*3) + 1))) +
-                xlab("sample mean")
-        } else if (input$dist == "Beta") {
-            sample_means() %>%
-                ggplot(aes(mean)) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
-                #scale_x_continuous(limits = c(-0.05, 1.05)) +
-                xlab("sample mean")
-        } else if (input$dist == "Pareto") {
-            sample_means() %>%
-                ggplot(aes(mean)) +
-                geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
-                #scale_x_continuous(limits = c(0, input$xmax + 1)) +
-                xlab("sample mean")
-        }
+        sample_means() %>%
+            ggplot(aes(mean)) +
+            geom_histogram(fill = "dodgerblue3", color = "dodgerblue4", size = 1) +
+            xlab("sample mean")
     })
 
     output$description <- renderUI({
@@ -311,6 +285,13 @@ server <- function(input, output) {
                     "We can also consider space, instead of time, as the dimension over which some species of interest is",
                     "distributed with some mean rate. So, for example, we might use the Poisson distribution to model",
                     "the number of seastars that we find along transects in a kelp forest."
+                )),
+                p(paste(
+                    "The Poisson distribution has only one parameter, which is both the mean and the variance, so that",
+                    "as the expected mean increases, the variance does too. This is a common feature of count data.",
+                    "A distribution closely related to the Poisson is the negative binomial - this is also a discrete",
+                    "distribution commonly used for count data, but it includes an overdispersion parameter which",
+                    "loosens the restrictive assumption that the mean and variance are equal."
                 ))
             )
         } else if (input$dist == "Beta") {
@@ -335,9 +316,26 @@ server <- function(input, output) {
                 h2("The Pareto Distribution"),
                 p(paste(
                     "The Pareto distribution is a continuous probability distribution for values greater than 1.",
-                    "It's really not used in ecology ever, but it's interesting for this lab because for a range",
-                    "of parameters, the variance of the Pareto distribution is infinite. Notice what this does",
-                    "to the sampling distribution."
+                    "It's really not used in ecology ever, but it's interesting because for a range of parameters,",
+                    "the variance of the Pareto distribution is infinite. Notice what this does to the sampling",
+                    "distribution."
+                ))
+            )
+        } else if (input$dist == "Gamma") {
+            fluidPage(
+                h2("The Gamma Distribution"),
+                p(paste(
+                    "The Gamma distribution is a continuous probability distribution for values greater than 0.",
+                    "It models the time required for the occurrence of a certain number of events to occur under",
+                    "a Poisson process. This mechanistic description is usually not what it's applied for however -",
+                    "in practice, the Gamma distribution is useful for many problems where the data are right-skewed,",
+                    "positive, and continuous."
+                )),
+                p(paste(
+                    "The shape parameter is neither a location nor scale parameter - i.e., it does not impact solely",
+                    "the mean or variance. This can make it a little confusing to use in models, because we are used to",
+                    "describing variables in terms of their means. Fortunately, the Gamma distribution can instead be",
+                    "parameterized using a mean (/location) and variance (see Bolker 2007 Chapter 4)."
                 ))
             )
         }

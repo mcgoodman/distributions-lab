@@ -124,7 +124,7 @@ c.  You're simulating a spatial model for which a proportion of the available ha
 
 Answer these questions using the R console (if you're running the distribution dashboard locally, you'll have to close it to do so). Provide your code for all answers.
 
-a.  Find the mean, variance, and 95% quantiles of 1000 random draws from a Poisson distribution with $\lambda=33$.
+a.  Find the mean, variance, and 95% quantiles (i.e., 2.5% and 97.5% quantiles) of 1000 random draws from a Poisson distribution with $\lambda=33$.
 
 b.  What is the probability $P(X \leq 6)$ that a random draw from a Poisson distribution with $\lambda = 4$ will be less than or equal to 6?
 

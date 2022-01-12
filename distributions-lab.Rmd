@@ -108,7 +108,7 @@ g.  The body length of a cohort of adult whale sharks.
 
 a.  You're modeling a population of gophers at Hopkins Marine Station, and you want to incorporate predation by the local red-shouldered hawk. On average, the hawk eats 2 gophers per month, but it doesn't catch the same number of gophers each month. Choose a distribution from which to simulate monthly hawk predation (justify your answer). What values should you choose for this distribution's parameter(s), and why? What is the probability that your simulated hawk will eat 4 gophers in a given month (you can eyeball this from the plot)?
 
-b.  At each of 15 sites, you've set up 10 enclosures where you've placed juvenile kelp, and after checking on these cages 3 months later you'd like to fit a model which relates the number of juvenile kelp surviving at each site to temperature at each site. Why is a binomial distribution with $n = 10$ the best choice for this data? Vary the other parameter ($p$), and observe what happens to the shape of the distribution. What is the most likely number of surviving kelp when we choose $p = 0.1$? Choose a value of $p$ for which the distribution's shape is most symmetrical.
+b.  At each of 15 sites, you've set up 10 enclosures in which you've placed juvenile kelp (one individual per enclosure), and after checking on these cages 3 months later you'd like to fit a model which relates the number of juvenile kelp surviving at each site to temperature at each site. Why is a binomial distribution with $n = 10$ the best choice for this data? Vary the other parameter ($p$), and observe what happens to the shape of the distribution. What is the most likely number of surviving kelp (per site) if the probability of survival $p = 0.1$? Choose a value of $p$ for which the distribution's shape is most symmetrical.
 
 c.  You're simulating a spatial model for which a proportion of the available habitat will be suitable (and the other proportion unsuitable) for abalone, and you've chosen a Beta distribution to do this. Choose three pairs of values for $\alpha$ and $\beta$ that give you three Beta distributions which are all symmetrical around 0.5 (so that, on average, your simulations will have about 50% suitable habitat), each with the following properties:
 
@@ -128,7 +128,7 @@ a.  Find the mean, variance, and 95% quantiles of 1000 random draws from a Poiss
 
 b.  What is the probability $P(X \leq 6)$ that a random draw from a Poisson distribution with $\lambda = 4$ will be less than or equal to 6?
 
-c.  What is the probability $P(X = 3)$ of obtaining a value of 3 from a Binomial distribution with $p  = 0.3$ and $n = 5$?
+c.  What is the probability $P(X = 3)$ of obtaining a value of 3 from a Binomial distribution with $p = 0.3$ and $n = 5$?
 
 d.  What is the probability $P(-1.5 \leq X \leq 1.5)$ that a value drawn from a standard normal distribution will be between -1.5 and 1.5 (it may help to approach this visually)?
 

@@ -58,7 +58,7 @@ Thus, we usually define continuous probability distributions by first describing
 
 ![](figures/Normal_CDF.png){width="3.75in"}
 
-Thus, for the standard normal distribution, we can see that the probability we obtain a value $x$ which is less than or equal to 0 is $F_X(x) = P(X \leq 0) = 0.5$, the probability we obtain a value less than 1 is $F_X(x) = P(X \leq 0) \approx 0.84$, and so on.
+Thus, for the standard normal distribution, we can see that the probability we obtain a value $x$ which is less than or equal to 0 is $F_X(x) = P(X \leq 0) = 0.5$, the probability we obtain a value less than 1 is $F_X(x) = P(X \leq 1) \approx 0.84$, and so on.
 
 ## Probability Density Functions
 

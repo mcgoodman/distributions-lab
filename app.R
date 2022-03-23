@@ -29,7 +29,7 @@ ui <- fluidPage(
                 inputId = "dist",
                 label = "Probability Distribution",
                 choices = c(
-                    "Normal", "Poisson", "Binomial", "Gamma", "Beta", "Pareto"
+                    "Normal", "Poisson", "Binomial", "Negative Binomial", "Gamma", "Beta", "Pareto"
                 )),
             uiOutput("params"),
             uiOutput("xlim"),
@@ -105,6 +105,7 @@ server <- function(input, output) {
             "Normal" = normal,
             "Poisson" = poisson,
             "Binomial" = binomial,
+            "Negative Binomial" = nbinom,
             "Beta" = beta,
             "Pareto" = pareto,
             "Gamma" = gamma
@@ -150,6 +151,8 @@ server <- function(input, output) {
             dist()$plot(input$par1)
         } else if (input$dist == "Pareto" | input$dist == "Gamma") {
             dist()$plot(input$par1, input$par2, xmax = input$xmax)
+        } else if (input$dist == "Negative Binomial") {
+            dist()$plot(input$par1, input$par2)
         } else {
             dist()$plot(input$par1, input$par2, xlim = c(input$xmin, input$xmax))
         }
@@ -194,7 +197,7 @@ server <- function(input, output) {
                 facet_wrap(~sample, nrow = 2) +
                 theme_bw() +
                 scale_x_continuous(limits = c(-1, input$par1 + 1))
-        } else if (input$dist == "Poisson") {
+        } else if (input$dist == "Poisson" | input$dist == "Negative Binomial") {
             sample_df() %>%
                 filter(sample <= 10) %>%
                 group_by(sample, value) %>%
@@ -295,7 +298,7 @@ server <- function(input, output) {
                 p("The Poisson distribution is a discrete probability distribution which is commonly used for count data."),
                 p(paste(
                     "The Poisson distribution expresses the number of events that happen in a fixed amount of time",
-                    "if they happen at a fixed mean rate. For example,let's say I;m sitting at my desk by the window",
+                    "if they happen at a fixed mean rate. For example,let's say I'm sitting at my desk by the window",
                     "for 8 hours a day. If dogs pass every 30 minutes, the number of dogs I observe in a given day would",
                     "be Poisson distributed with mean 16, because dogs pass once every half hour for eight hours."
                 )),
@@ -315,6 +318,26 @@ server <- function(input, output) {
                 withMathJax("\\[\\lambda\\]"),
                 h4("Variance"),
                 withMathJax("\\[\\lambda\\]")
+            )
+        } else if (input$dist == "Negative Binomial") {
+            fluidPage(
+              h2("The Negative Binomial Distribution"),
+              p(paste(
+                "The Negative Binomial Distribution is a discrete probability distribution that models the",
+                "number of successes in a series of Bernoulli trials, before a specified number of failures.",
+                "Typically, it is parameterized by a number of failures, r, and a probability of success, p.",
+                "However, an alternative parameterization, using a mean and a dispersion parameter, makes it",
+                "very useful in ecology. The Binomial distribution, under this parameterization, is essentially",
+                "a Poisson distribution, but with the assumption that the mean and variance are identical",
+                "loosened (take a look at the equations for the mean and variance below) - in fact, as the",
+                "dispersion parameter increases towards infinity, the Negative Binomial distribution converges",
+                "to the Poisson. This makes the Negative Binomial an extremely popular choice for modeling",
+                "ecological count data."
+              )),
+              h4("Mean"),
+              withMathJax("\\[\\mu\\]"),
+              h4("Variance"),
+              withMathJax("\\[\\mu + (\\mu^2/\\phi) \\]")
             )
         } else if (input$dist == "Beta") {
             fluidPage(

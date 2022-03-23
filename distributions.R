@@ -116,16 +116,33 @@ poisson$draw_samples <- function(n, lambda) rpois(n, lambda)
 poisson$mean <- function(lambda) lambda
 poisson$variance <- function(lambda) lambda
 poisson$plot <- function(lambda) {
-  x = seq(0, ifelse(lambda <= 1, 4, ceiling(lambda*3)), by = 1)
-  if(lambda <= 0) {
-    stop("lambda must be positive")
-  }
+  x = seq(0, qpois(0.999, lambda = lambda), by = 1)
+
   probability = poisson$density(x, lambda)
 
   data.frame(x = x, probability = probability) %>%
     ggplot(aes(x, probability)) +
     geom_bar(stat = "identity", fill = "dodgerblue3", color = "dodgerblue4")
 }
+
+## Negative Binomial distribution functions
+nbinom <- list()
+nbinom$pars <- list(mu = div(HTML("&mu;: mean")), phi = div(HTML("&phi;: dispersion parameter")))
+nbinom$scale <- list(mu = c(0.1, 10, 1, 0.1), phi = c(0.1, 10, 10, 0.1))
+nbinom$density <- function(x, mu, phi) dnbinom(x, mu = mu, size = phi)
+nbinom$draw_samples <- function(n, mu, phi) rnbinom(n, mu = mu, size = phi)
+nbinom$mean <- function(mu) mu
+nbinom$variance <- function(mu, phi) mu + (mu^2)/phi
+nbinom$plot <- function(mu, phi) {
+  x = seq(0, qnbinom(0.999, mu = mu, size = phi), by = 1)
+
+  probability = nbinom$density(x, mu, phi)
+
+  data.frame(x = x, probability = probability) %>%
+    ggplot(aes(x, probability)) +
+    geom_bar(stat = "identity", fill = "dodgerblue3", color = "dodgerblue4")
+}
+
 
 ## Gamma distribution functions
 gamma <- list()

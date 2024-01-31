@@ -163,6 +163,25 @@ gamma$plot <- function(k, theta, xmax = 20) {
     geom_line(size = 1, color = "dodgerblue4")
 }
 
+## Lognormal distribution functions
+lnorm <- list()
+lnorm$pars <- list(mu = "&mu;: log-mean", sigma = div(HTML("&sigma;: log standard deviation")))
+lnorm$scale <- list(mu = c(0.1, 3, 1, 0.1), sigma = c(0.1, 2, 1, 0.1))
+lnorm$xmax <- 20
+lnorm$density <- function(x, mu, sigma) dlnorm(x, meanlog = mu, sdlog = sigma)
+lnorm$draw_samples <- function(n, mu, sigma) rlnorm(n, meanlog = mu, sdlog = sigma)
+lnorm$mean <- function(mu, sigma) exp(mu + (sigma^2)/2)
+lnorm$variance <- function(mu, sigma) (exp(sigma^2) - 1)*(exp(2 * mu + sigma^2))
+lnorm$plot <- function(mu, sigma, xmax = 20) {
+  x = seq(0, xmax, length.out = 200)
+  density = lnorm$density(x, mu, sigma)
+
+  data.frame(x = x, density = density) %>%
+    ggplot(aes(x, density)) +
+    geom_area(alpha = 0.5, fill = "dodgerblue3", color = NA) +
+    geom_line(size = 1, color = "dodgerblue4")
+}
+
 
 ### Functions to draw and summarize samples ---------------------------------------------
 

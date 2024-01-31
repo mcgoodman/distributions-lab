@@ -43,7 +43,7 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             tabsetPanel(
-             tabPanel("Density Function", fluidPage(
+             tabPanel(uiOutput("tab_label"), fluidPage(
                  plotOutput("density"),
                  uiOutput("description")
              )),
@@ -110,6 +110,19 @@ server <- function(input, output) {
             "Pareto" = pareto,
             "Gamma" = gamma
         )
+    })
+
+    output$tab_label = renderText({
+      switch(
+        input$dist,
+        "Normal" = "Density function",
+        "Poisson" = "Mass function",
+        "Binomial" = "Mass function",
+        "Negative Binomial" = "Mass function",
+        "Beta" = "Density function",
+        "Pareto" = "Density function",
+        "Gamma" = "Density function"
+      )
     })
 
     output$params <- renderUI({
@@ -391,9 +404,9 @@ server <- function(input, output) {
                     "parameterized using a mean (/location) and variance (see Bolker 2007 Chapter 4)."
                 )),
                 h4("Mean"),
-                withMathJax("\\[\\frac{\\alpha}{\\beta}\\]"),
+                withMathJax("\\[k\\theta\\]"),
                 h4("Variance"),
-                withMathJax("\\[\\frac{\\alpha}{\\beta^2}\\]")
+                withMathJax("\\[k\\theta^2\\]")
             )
         }
     })

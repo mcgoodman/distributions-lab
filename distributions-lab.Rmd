@@ -86,9 +86,9 @@ R has a number of probability distribution functions built-in (to see them, type
 
 Open `distributions-lab.Rproj` to start a new RStudio session, and open `app.R` within that session. In the upper right-hand corner of the RStudio source viewer, click "Run App," which should launch an interactive dashboard app in a new window. We'll use this app for today's lab.
 
-### 1. Choosing Probability Distributions
+### 1. Choosing Probability Distributions 
 
-Choose one or more appropriate distributions for the types of data shown below and justify your decision(s).
+Choose one or more appropriate distributions for the types of data shown below and justify your decision(s). **1pt. each**
 
 a.  The number of seals on a haul-out beach in the gulf of Alaska.
 
@@ -106,9 +106,9 @@ g.  The body length of a cohort of adult whale sharks.
 
 ### 2. Exploring Distributions & Parameters
 
-a.  You're modeling a population of gophers at Hopkins Marine Station, and you want to incorporate predation by the local red-shouldered hawk. On average, the hawk eats 2 gophers per month, but it doesn't catch the same number of gophers each month. Choose a distribution from which to simulate monthly hawk predation (justify your answer). What values should you choose for this distribution's parameter(s), and why? What is the probability that your simulated hawk will eat 4 gophers in a given month (you can eyeball this from the plot)?
+a.  You're modeling a population of gophers at Hopkins Marine Station, and you want to incorporate predation by the local red-shouldered hawk. On average, the hawk eats 2 gophers per month, but it doesn't catch the same number of gophers each month. Choose a distribution from which to simulate monthly hawk predation (justify your answer). What values should you choose for this distribution's parameter(s), and why? What is the probability that your simulated hawk will eat 4 gophers in a given month (you can eyeball this from the plot)? **3pt.**
 
-b.  At each of 15 sites, you've set up 10 enclosures in which you've placed juvenile kelp (one individual per enclosure), and after checking on these cages 3 months later you'd like to fit a model which relates the number of juvenile kelp surviving at each site to temperature at each site. Why is a binomial distribution with $n = 10$ the best choice for this data? Vary the other parameter ($p$), and observe what happens to the shape of the distribution. What is the most likely number of surviving kelp (per site) if the probability of survival $p = 0.1$? Choose a value of $p$ for which the distribution's shape is most symmetrical.
+b.  At each of 15 sites, you've set up 10 enclosures in which you've placed juvenile kelp (one individual per enclosure), and after checking on these cages 3 months later you'd like to fit a model which relates the number of juvenile kelp surviving at each site to temperature at each site. Why is a binomial distribution with $n = 10$ the best choice for this data? Vary the other parameter ($p$), and observe what happens to the shape of the distribution. What is the most likely number of surviving kelp (per site) if the probability of survival $p = 0.1$? Choose a value of $p$ for which the distribution's shape is most symmetrical. **3pt.**
 
 c.  You're simulating a spatial model for which a proportion of the available habitat will be suitable (and the other proportion unsuitable) for abalone, and you've chosen a Beta distribution to do this. Choose three pairs of values for $\alpha$ and $\beta$ that give you three Beta distributions which are all symmetrical around 0.5 (so that, on average, your simulations will have about 50% suitable habitat), each with the following properties:
 
@@ -118,11 +118,11 @@ c.  You're simulating a spatial model for which a proportion of the available ha
 
     -   One in which all possible percentages of suitable habitat are about equally likely, except for the extreme values.
 
-    Taking a look at the equation for the mean of the Beta distribution will probably make this pretty straightforward. What are the parameter combinations that you chose? Take a screenshot of these distributions (or draw them) and include them in your answers.
+    Taking a look at the equation for the mean of the Beta distribution will probably make this pretty straightforward. What are the parameter combinations that you chose? Take a screenshot of these distributions (or draw them) and include them in your answers. **3pt.**
 
 ### 3. Using R's distribution functions
 
-Answer these questions using the R console (if you're running the distribution dashboard locally, you'll have to close it to do so). Provide your code for all answers.
+Answer these questions using the R console (if you're running the distribution dashboard locally, you'll have to close it to do so). Provide your code for all answers. **1pt. each**
 
 a.  Find the mean, variance, and 95% quantiles (i.e., 2.5% and 97.5% quantiles) of 1000 random draws from a Poisson distribution with $\lambda=33$.
 
@@ -136,9 +136,9 @@ e.  Find the value $x$ that satisfies to $P(X \leq x) = 0.8$, if $X$ is a Gamma 
 
 ### 4. Samples and their means
 
-a.  Read the intro text below the Normal distribution in the distribution dashboard. What is the difference between the distribution of the sample and the "sampling distribution?" How is the sample size distinguished from the number of samples?
+a.  Read the intro text below the Normal distribution in the distribution dashboard. What is the difference between the distribution of the sample and the "sampling distribution?" How is the sample size distinguished from the number of samples? **2pt.**
 
-b.  Drag the sliders for the sample size and the number of samples all the way to the right. Visit *all* of the distributions and spend a little time there, messing with their parameters. In general, what do you notice about the distribution of their sample means? Are there any distributions (/parameter values) for which this pattern does not hold? If so, what seems to be the reason?
+b.  Drag the sliders for the sample size and the number of samples all the way to the right. Visit *all* of the distributions and spend a little time there, messing with their parameters. In general, what do you notice about the distribution of their sample means? Are there any distributions (/parameter values) for which this pattern does not hold? If so, what seems to be the reason? **3pt.**
 
 ### Attribution
 
